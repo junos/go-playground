@@ -1,2 +1,2 @@
 # go-playground
-Using go to build APIs
+Using Go programming language to build APIs
