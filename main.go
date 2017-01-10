@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/jinzhu/gorm"
+  _ "github.com/jinzhu/gorm/dialects/postgres"
 	_ "github.com/mattn/go-sqlite3"
 )
 
@@ -11,6 +12,33 @@ type Users struct {
 	Firstname string `gorm:"not null" form:"firstname" json:"firstname"`
 	Lastname  string `gorm:"not null" form:"lastname" json:"lastname"`
 }
+
+type Prices struct {
+	Id        int    `gorm:"AUTO_INCREMENT" form:"id" json:"id"`
+	Field1 string `gorm:"not null" form:"field1" json:"field1"`
+	Field2 string `gorm:"not null" form:"field2" json:"field2"`
+	Field3 string `gorm:"not null" form:"field3" json:"field3"`
+	Field4 string `gorm:"not null" form:"field4" json:"field4"`
+	Field5 string `gorm:"not null" form:"field5" json:"field5"`
+	Field6 string `gorm:"not null" form:"field6" json:"field6"`
+	Field7 string `gorm:"not null" form:"field7" json:"field7"`
+	Field8 string `gorm:"not null" form:"field8" json:"field8"`
+	Field9 string `gorm:"not null" form:"field9" json:"field9"`
+	Field10 string `gorm:"not null" form:"field10" json:"field10"`
+	Field11 string `gorm:"not null" form:"field11" json:"field11"`
+	Field12 string `gorm:"not null" form:"field12" json:"field12"`
+	Field13 string `gorm:"not null" form:"field13" json:"field13"`
+	Field14 string `gorm:"not null" form:"field14" json:"field14"`
+	Field15 string `gorm:"not null" form:"field15" json:"field15"`
+}
+
+/*
+const (
+	DB_USER = ""
+	DB_PASSWORD = ""
+	DB_NAME = ""
+)
+*/
 
 func InitDb() *gorm.DB {
 	// Openning file
@@ -26,6 +54,21 @@ func InitDb() *gorm.DB {
 	if !db.HasTable(&Users{}) {
 		db.CreateTable(&Users{})
 		db.Set("gorm:table_options", "ENGINE=InnoDB").CreateTable(&Users{})
+	}
+
+	return db
+}
+
+func InitPgDb() *gorm.DB {
+	// Openning PG database
+	db, err := gorm.Open("postgres", "host=localhost user=postgres password=mpostgres dbname=api_phoenix_dev sslmode=disable")
+
+	// Display SQL queries
+	db.LogMode(true)
+
+	// Error
+	if err != nil {
+		panic(err)
 	}
 
 	return db
@@ -50,6 +93,7 @@ func main() {
 		v1.GET("/users/:id", GetUser)
 		v1.PUT("/users/:id", UpdateUser)
 		v1.DELETE("/users/:id", DeleteUser)
+		v1.GET("/prices", GetPrices)
 	}
 
 	r.Run(":8080")
@@ -89,6 +133,22 @@ func GetUsers(c *gin.Context) {
 	c.JSON(200, users)
 
 	// curl -i http://localhost:8080/api/v1/users
+}
+
+func GetPrices(c *gin.Context) {
+	// Connection to the database
+	db := InitPgDb()
+	// Close connection database
+	defer db.Close()
+
+	var prices []Prices
+	db.Limit(1000000).Find(&prices)
+	//db.Where("field2 = ?", "BDBD").Limit(10).Find(&prices)
+
+	// Display JSON result
+	c.JSON(200, prices)
+
+	// curl -i http://localhost:8080/api/v1/prices
 }
 
 func GetUser(c *gin.Context) {
